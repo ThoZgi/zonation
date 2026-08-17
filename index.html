@@ -997,7 +997,7 @@ function construireProfilSVG(svgId, opts){
     html += `<g>
       <rect x="${x0}" y="1" width="${x1-x0-2}" height="17" fill="${g.couleur}" opacity="0.13"/>
       <rect x="${x0}" y="15" width="${x1-x0-2}" height="3" fill="${g.couleur}"/>
-      <text x="${(x0+x1)/2}" y="12" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8.5" font-weight="700" letter-spacing="0.05em" fill="${g.couleur}">${g.nom.toUpperCase()}</text>
+      <text x="${(x0+x1)/2}" y="12" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9.3" font-weight="700" letter-spacing="0.04em" fill="${g.couleur}">${g.nom.toUpperCase()}</text>
     </g>`;
   });
   // Séparateurs verticaux entre grands ensembles
@@ -1007,22 +1007,22 @@ function construireProfilSVG(svgId, opts){
   PROFIL_ZONATION.forEach((z,i)=>{
     const fichesAffiches = z.fiches;
     const lignes = decouperEnLignes(z.zone, 9);
-    const tspans = lignes.map((l,j)=>`<tspan x="${i*w+w/2}" dy="${j===0?0:9.5}">${l}</tspan>`).join('');
+    const tspans = lignes.map((l,j)=>`<tspan x="${i*w+w/2}" dy="${j===0?0:10.5}">${l}</tspan>`).join('');
     const selectionnee = opts.zoneSelectionnee === i;
     html += `<g class="zone-colonne" tabindex="0" role="button" aria-label="${z.zone} — voir uniquement les habitats de cette zone" onclick="selectionnerZoneFiches(${i})" style="cursor:pointer;">
       <rect x="${i*w}" y="20" width="${w-2}" height="158" fill="${ZONES_LINES_COULEURS[i]}" opacity="${selectionnee?0.05:0.01}"/>
       <rect x="${i*w}" y="42" width="${w-2}" height="100" fill="${ZONES_LINES_COULEURS[i]}" opacity="${selectionnee?0.9:0.55}"/>
       ${selectionnee ? `<rect x="${i*w+1}" y="43" width="${w-4}" height="98" fill="none" stroke="#c0562b" stroke-width="2.5"/>` : ''}
-      <text x="${i*w+w/2}" y="162" text-anchor="middle" font-size="8.3" font-weight="${selectionnee?700:400}" fill="#191b16">${tspans}</text>`;
+      <text x="${i*w+w/2}" y="161" text-anchor="middle" font-size="9.3" font-weight="${selectionnee?700:400}" fill="#191b16">${tspans}</text>`;
     fichesAffiches.forEach((fid, k)=>{
       const cx = i*w + 13 + (k%4)*16;
       const cy = 56 + Math.floor(k/4)*16;
-      html += `<circle cx="${cx}" cy="${cy}" r="7" fill="#fff" stroke="#191b16" stroke-width="1" style="pointer-events:none"/>
-        <text x="${cx}" y="${cy+2.6}" text-anchor="middle" font-size="7" fill="#191b16" style="pointer-events:none">${fid}</text>`;
+      html += `<circle cx="${cx}" cy="${cy}" r="7.5" fill="#fff" stroke="#191b16" stroke-width="1" style="pointer-events:none"/>
+        <text x="${cx}" y="${cy+2.8}" text-anchor="middle" font-size="7.8" fill="#191b16" style="pointer-events:none">${fid}</text>`;
     });
     html += `</g>`;
   });
-  svg.innerHTML = html + `<text x="10" y="192" font-size="9" fill="#565a4e">slikke (mer) →</text><text x="590" y="192" font-size="9" fill="#565a4e" text-anchor="end">← dune</text>`;
+  svg.innerHTML = html + `<text x="10" y="192" font-size="9.8" fill="#565a4e">slikke (mer) →</text><text x="590" y="192" font-size="9.8" fill="#565a4e" text-anchor="end">← dune</text>`;
 }
 
 /* Petit diagramme de position, réutilisé sur chaque fiche détail : mêmes colonnes
@@ -1036,24 +1036,24 @@ function construireMiniProfilSVG(idxZone){
     html += `<g>
       <rect x="${x0}" y="1" width="${x1-x0-2}" height="14" fill="${g.couleur}" opacity="0.13"/>
       <rect x="${x0}" y="12" width="${x1-x0-2}" height="3" fill="${g.couleur}"/>
-      <text x="${(x0+x1)/2}" y="10" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7.5" font-weight="700" letter-spacing="0.05em" fill="${g.couleur}">${g.nom.toUpperCase()}</text>
+      <text x="${(x0+x1)/2}" y="10" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8.3" font-weight="700" letter-spacing="0.03em" fill="${g.couleur}">${g.nom.toUpperCase()}</text>
     </g>`;
   });
   GRANDS_ENSEMBLES.slice(1).forEach(g=>{
-    html += `<line x1="${g.debut*w}" y1="17" x2="${g.debut*w}" y2="74" stroke="#191b16" stroke-width="1" stroke-dasharray="2,2" opacity="0.35"/>`;
+    html += `<line x1="${g.debut*w}" y1="17" x2="${g.debut*w}" y2="82" stroke="#191b16" stroke-width="1" stroke-dasharray="2,2" opacity="0.35"/>`;
   });
   PROFIL_ZONATION.forEach((z,i)=>{
     const lignes = decouperEnLignes(z.zone, 9);
-    const tspans = lignes.map((l,j)=>`<tspan x="${i*w+w/2}" dy="${j===0?0:9}">${l}</tspan>`).join('');
+    const tspans = lignes.map((l,j)=>`<tspan x="${i*w+w/2}" dy="${j===0?0:10}">${l}</tspan>`).join('');
     html += `<g>
       <rect x="${i*w}" y="24" width="${w-2}" height="30" fill="${ZONES_LINES_COULEURS[i]}" opacity="${i===idxZone?0.9:0.4}"/>
-      <text x="${i*w+w/2}" y="66" text-anchor="middle" font-size="7.6" fill="#191b16">${tspans}</text>
+      <text x="${i*w+w/2}" y="66" text-anchor="middle" font-size="8.3" fill="#191b16">${tspans}</text>
     </g>`;
     if(i===idxZone){
       html += `<circle cx="${i*w+w/2}" cy="39" r="6.5" fill="#c0562b" stroke="#fff" stroke-width="1.6"/>`;
     }
   });
-  return `<svg class="zonation-diagram" viewBox="0 0 600 78" xmlns="http://www.w3.org/2000/svg">${html}</svg>`;
+  return `<svg class="zonation-diagram" viewBox="0 0 600 86" xmlns="http://www.w3.org/2000/svg">${html}</svg>`;
 }
 
 /* Ordre et couleur de référence pour toute liste de fiches : dérivés de PROFIL_ZONATION
