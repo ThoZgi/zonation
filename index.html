@@ -238,13 +238,13 @@ table.historique th,table.historique td{border-bottom:1px solid var(--line);padd
 }
 .filtre-chip.actif{background:var(--acc);color:#fff;border-color:var(--acc);}
 .abondance-select{
-  display:flex;flex-wrap:wrap;align-items:center;gap:.4em;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(46px,1fr));gap:.5em;
   width:100%;margin:.7em 0 0;padding:.5em;
   background:#fff;border:1px solid var(--line);border-radius:0;
 }
-.abondance-label{font-size:.78rem;color:var(--text-2);font-weight:700;margin-right:.1em;width:100%;}
+.abondance-label{grid-column:1/-1;font-size:.78rem;color:var(--text-2);font-weight:700;margin-right:.1em;width:100%;}
 .abondance-select button{
-  min-width:2.5em;min-height:2.5em;padding:.2em;font-family:var(--mono);font-size:1.05rem;border-radius:0;
+  min-height:3.2em;padding:.2em;font-family:var(--mono);font-size:1.35rem;border-radius:0;
   background:var(--page);color:var(--text-2);font-weight:700;border:1px solid var(--line);
 }
 .abondance-select button.actif{background:var(--acc);color:#fff;border-color:var(--acc);}
