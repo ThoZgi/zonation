@@ -262,10 +262,17 @@ table.historique th,table.historique td{border-bottom:1px solid var(--line);padd
 /* ---- Schéma comparateur de recouvrement (quadrats 1 m²), toujours visible ---- */
 .comparateur-detail{margin:.9em 0 0;}
 .comparateur-detail p{font-size:.78rem;color:var(--text-2);margin:.2em 0 .6em;}
-.comparateur-scroll{display:flex;gap:.7em;overflow-x:auto;padding:.3em .1em .6em;}
-.quadrat{flex:0 0 auto;text-align:center;}
+/* Grille responsive plutôt qu'une rangée à défilement horizontal (débordait sur
+   téléphone) : le nombre de colonnes s'adapte tout seul à la largeur disponible
+   (jusqu'à 8 en une rangée sur écran large, moins et sur plusieurs lignes sur
+   téléphone), sans jamais dépasser la largeur de l'écran. */
+.comparateur-scroll{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(60px,1fr));
+  gap:.8em .5em;padding:.3em .1em .6em;
+}
+.quadrat{text-align:center;}
 .quadrat-grille{
-  width:60px;height:60px;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);
+  width:60px;height:60px;margin:0 auto;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);
   border:2px solid var(--ink);border-radius:0;overflow:hidden;background:#fff;
 }
 .quadrat-grille.grand{width:84px;height:84px;}
