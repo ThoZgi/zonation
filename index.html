@@ -154,6 +154,12 @@ main{max-width:640px;margin:0 auto;padding:1em;}
 .suggestion span{font-size:.78rem;color:var(--text-2);font-style:italic;}
 .selected-hint{font-size:.82rem;color:var(--text-2);margin:.7em 0;min-height:1.2em;}
 .selected-hint b{color:var(--acc-dark);}
+.etape-label{display:block;font-family:var(--mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--acc-dark);font-weight:700;margin-bottom:.6em;}
+.masque{display:none;}
+.espece-en-cours{font-size:.95rem;margin-bottom:.3em;}
+.espece-en-cours b{font-family:var(--serif);}
+.lien-retour-etape{display:inline-block;font-family:var(--mono);font-size:.75rem;color:var(--acc-dark);text-decoration:none;margin-bottom:.9em;cursor:pointer;}
+.lien-retour-etape:hover{text-decoration:underline;}
 .btn-add{width:100%;}
 .btn-add:disabled{background:var(--line);border-color:var(--line);color:var(--text-2);cursor:not-allowed;}
 .chip-libre{
@@ -346,21 +352,33 @@ table.historique th,table.historique td{border-bottom:1px solid var(--line);padd
       <p style="font-size:.8rem;color:var(--text-2);margin-top:-.3em;">Si une espèce n'est pas reconnue, elle peut quand même être ajoutée (pour mémoire, sans effet sur le score).</p>
 
       <div class="addbar">
-        <div class="search-wrap">
-          <input type="text" id="recherche-espece" autocomplete="off" placeholder="⌕ Rechercher une espèce (nom FR ou latin)…" oninput="onSaisieRecherche()" onkeydown="onToucheRecherche(event)">
-          <div id="suggestions-especes" class="suggestions"></div>
+        <!-- Étape 1/2 : choix de l'espèce -->
+        <div id="etape-espece" class="etape-saisie">
+          <span class="etape-label">Étape 1/2 — Choisir l'espèce</span>
+          <div class="search-wrap">
+            <input type="text" id="recherche-espece" autocomplete="off" placeholder="⌕ Rechercher une espèce (nom FR ou latin)…" oninput="onSaisieRecherche()" onkeydown="onToucheRecherche(event)">
+            <div id="suggestions-especes" class="suggestions"></div>
+          </div>
+          <div id="espece-selectionnee" class="selected-hint">Tapez un nom, choisissez-le dans la liste (ou laissez tel quel si l'espèce n'est pas référencée), puis validez.</div>
+          <button id="btn-suivant-espece" class="btn-add" onclick="passerEtapeAbondance()" disabled>Suivant : abondance-dominance →</button>
         </div>
-        <div class="abondance-select" id="abondance-ajout">
-          <!-- contenu généré par JS -->
-        </div>
-        <div class="fourchette-affichage" id="fourchette-affichage"></div>
-        <div id="espece-selectionnee" class="selected-hint">Tapez un nom, choisissez-le dans la liste, précisez l'abondance puis validez.</div>
-        <button id="btn-ajouter-espece" class="btn-add" onclick="ajouterAuCortege()" disabled>+ Ajouter au relevé</button>
 
-        <div class="comparateur-detail">
-          <p class="abondance-label" style="margin:.8em 0 .1em;">Repère visuel : à quoi ressemble chaque niveau dans 1 m² ?</p>
-          <p>Chaque carré représente un placeau d'1 m² ; la partie verte montre la proportion couverte par l'espèce que vous êtes en train de saisir, pour ce niveau (pas la végétation dans son ensemble).</p>
-          <div class="comparateur-scroll" id="comparateur-recouvrement"></div>
+        <!-- Étape 2/2 : abondance-dominance -->
+        <div id="etape-abondance" class="etape-saisie masque">
+          <span class="etape-label">Étape 2/2 — Abondance-dominance</span>
+          <div class="espece-en-cours" id="espece-en-cours"></div>
+          <a class="lien-retour-etape" onclick="retourEtapeEspece()">← Changer d'espèce</a>
+          <div class="abondance-select" id="abondance-ajout">
+            <!-- contenu généré par JS -->
+          </div>
+          <div class="fourchette-affichage" id="fourchette-affichage"></div>
+          <button id="btn-ajouter-espece" class="btn-add" onclick="ajouterAuCortege()" disabled>+ Ajouter au relevé</button>
+
+          <div class="comparateur-detail">
+            <p class="abondance-label" style="margin:.8em 0 .1em;">Repère visuel : à quoi ressemble chaque niveau dans 1 m² ?</p>
+            <p>Chaque carré représente un placeau d'1 m² ; la partie verte montre la proportion couverte par l'espèce que vous êtes en train de saisir, pour ce niveau (pas la végétation dans son ensemble).</p>
+            <div class="comparateur-scroll" id="comparateur-recouvrement"></div>
+          </div>
         </div>
       </div>
 
@@ -425,7 +443,8 @@ table.historique th,table.historique td{border-bottom:1px solid var(--line);padd
 /* Etat de l'application */
 let etat = {
   cortege: [], // liste ordonnée d'entrées : {key, fr, latin, mode:'bb', cover, reconnue}
-  especeSelectionnee: null, // taxon choisi dans les suggestions, en attente d'ajout
+  especeSelectionnee: null, // taxon choisi dans les suggestions (étape 1), en attente de confirmation
+  especeEnCours: null, // {fr, latin, reconnue} confirmé à l'étape 1, en cours de saisie d'abondance (étape 2)
   coefCourant: null, // coefficient Braun-Blanquet actuellement sélectionné pour l'ajout
   dernierResultat: null
 };
@@ -532,8 +551,61 @@ function initSaisieEspeces(){
   construireComparateurRecouvrement();
   afficherFourchette();
   majEtatBoutonAjouter();
+  majEtatBoutonSuivant();
   document.getElementById('suggestions-especes').classList.remove('ouvert');
   construireTableauCortege();
+  afficherEtape(1); // toujours reprendre par le choix de l'espèce en arrivant sur l'écran
+}
+
+/* ---- Saisie en 2 étapes : 1) choisir l'espèce, 2) choisir l'abondance-dominance ----
+   Sépare clairement les deux décisions (quoi ? puis combien ?) plutôt que de tout
+   présenter en même temps. */
+function afficherEtape(n){
+  document.getElementById('etape-espece').classList.toggle('masque', n!==1);
+  document.getElementById('etape-abondance').classList.toggle('masque', n!==2);
+  if(n===1) document.getElementById('recherche-espece').focus();
+}
+
+function majEtatBoutonSuivant(){
+  const btn = document.getElementById('btn-suivant-espece');
+  if(!btn) return;
+  const texte = document.getElementById('recherche-espece').value.trim();
+  btn.disabled = !etat.especeSelectionnee && !texte;
+}
+
+function afficherEspeceEnCours(){
+  const e = etat.especeEnCours;
+  const cont = document.getElementById('espece-en-cours');
+  if(!cont) return;
+  cont.innerHTML = !e ? '' : (e.reconnue
+    ? `Espèce : <b>${e.fr}</b> <i>(${e.latin})</i>`
+    : `Espèce (non référencée, ajoutée pour mémoire) : <b>${e.fr}</b>`);
+}
+
+function passerEtapeAbondance(){
+  const hint = document.getElementById('espece-selectionnee');
+  if(etat.especeSelectionnee){
+    etat.especeEnCours = {fr: etat.especeSelectionnee.fr, latin: etat.especeSelectionnee.latin, reconnue:true};
+  } else {
+    const texte = document.getElementById('recherche-espece').value.trim();
+    if(!texte){
+      hint.innerHTML = `<span style="color:var(--status-invalide);">Tapez un nom d'espèce (ou sélectionnez-en un dans la liste) avant de continuer.</span>`;
+      return;
+    }
+    etat.especeEnCours = {fr: texte, latin: null, reconnue:false};
+  }
+  document.getElementById('suggestions-especes').classList.remove('ouvert');
+  afficherEspeceEnCours();
+  afficherEtape(2);
+}
+
+function retourEtapeEspece(){
+  etat.coefCourant = null;
+  construireSelecteurAbondance();
+  construireComparateurRecouvrement();
+  afficherFourchette();
+  majEtatBoutonAjouter();
+  afficherEtape(1);
 }
 
 /* ---- Schéma comparateur : quadrats 1 m² à remplissage proportionnel ----
@@ -638,8 +710,9 @@ function rechercherEspeces(q){
 
 function onSaisieRecherche(){
   etat.especeSelectionnee = null;
-  document.getElementById('espece-selectionnee').textContent = "Tapez un nom, choisissez-le dans la liste, précisez l'abondance puis validez.";
+  document.getElementById('espece-selectionnee').textContent = "Tapez un nom, choisissez-le dans la liste (ou laissez tel quel si l'espèce n'est pas référencée), puis validez.";
   afficherSuggestions(rechercherEspeces(document.getElementById('recherche-espece').value));
+  majEtatBoutonSuivant();
 }
 
 function afficherSuggestions(liste){
@@ -656,13 +729,15 @@ function choisirSuggestion(key){
   document.getElementById('recherche-espece').value = e.fr;
   document.getElementById('espece-selectionnee').innerHTML = `Espèce sélectionnée : <b>${e.fr}</b> <i>(${e.latin})</i>`;
   document.getElementById('suggestions-especes').classList.remove('ouvert');
+  majEtatBoutonSuivant();
 }
 
 function onToucheRecherche(event){
   if(event.key === 'Enter'){
     event.preventDefault();
     const premiere = document.querySelector('#suggestions-especes .suggestion');
-    if(premiere) choisirSuggestion(premiere.dataset.key);
+    if(premiere && !etat.especeSelectionnee) choisirSuggestion(premiere.dataset.key);
+    passerEtapeAbondance();
   } else if(event.key === 'Escape'){
     document.getElementById('suggestions-especes').classList.remove('ouvert');
   }
@@ -677,47 +752,36 @@ document.addEventListener('click', e=>{
 });
 
 function ajouterAuCortege(){
-  const recherche = document.getElementById('recherche-espece');
-  const hint = document.getElementById('espece-selectionnee');
+  // Garde-fous : le bouton est normalement désactivé tant que l'espèce (étape 1)
+  // et le coefficient (étape 2) ne sont pas tous les deux définis.
+  if(!etat.coefCourant || !etat.especeEnCours) return;
   const mode = 'bb';
-  if(!etat.coefCourant){
-    hint.innerHTML = `<span style="color:var(--status-invalide);">Choisissez d'abord un coefficient d'abondance-dominance.</span>`;
-    return;
-  }
   const cover = etat.coefCourant;
-  let entree;
+  const e = etat.especeEnCours;
 
-  if(etat.especeSelectionnee){
-    const e = etat.especeSelectionnee;
-    entree = {key: normaliser(e.latin), fr: e.fr, latin: e.latin, mode, cover, reconnue: true};
+  if(e.reconnue){
+    etat.cortege.push({key: normaliser(e.latin), fr: e.fr, latin: e.latin, mode, cover, reconnue: true});
   } else {
-    const texte = recherche.value.trim();
-    if(!texte){
-      hint.innerHTML = `<span style="color:var(--status-invalide);">Tapez un nom d'espèce (ou sélectionnez-en un dans la liste) avant d'ajouter.</span>`;
-      return;
-    }
     // espèce non reconnue : ajoutée telle quelle, pour mémoire, sans effet sur le score
-    const dejaLibre = etat.cortege.find(x=> !x.reconnue && normaliser(x.fr)===normaliser(texte));
-    entree = {key:null, fr: texte, latin:null, mode, cover, reconnue:false};
-    if(dejaLibre){ dejaLibre.mode = mode; dejaLibre.cover = cover; finirAjout(); return; }
+    const dejaLibre = etat.cortege.find(x=> !x.reconnue && normaliser(x.fr)===normaliser(e.fr));
+    if(dejaLibre){ dejaLibre.mode = mode; dejaLibre.cover = cover; }
+    else etat.cortege.push({key:null, fr: e.fr, latin:null, mode, cover, reconnue:false});
   }
 
-  etat.cortege.push(entree);
-  finirAjout();
-
-  function finirAjout(){
-    etat.especeSelectionnee = null;
-    etat.coefCourant = null;
-    construireSelecteurAbondance();
-    construireComparateurRecouvrement();
-    afficherFourchette();
-    majEtatBoutonAjouter();
-    recherche.value = '';
-    hint.textContent = "Tapez un nom, choisissez-le dans la liste, précisez l'abondance puis validez.";
-    document.getElementById('suggestions-especes').classList.remove('ouvert');
-    construireTableauCortege();
-    recherche.focus();
-  }
+  const recherche = document.getElementById('recherche-espece');
+  etat.especeSelectionnee = null;
+  etat.especeEnCours = null;
+  etat.coefCourant = null;
+  construireSelecteurAbondance();
+  construireComparateurRecouvrement();
+  afficherFourchette();
+  majEtatBoutonAjouter();
+  recherche.value = '';
+  document.getElementById('espece-selectionnee').textContent = "Tapez un nom, choisissez-le dans la liste (ou laissez tel quel si l'espèce n'est pas référencée), puis validez.";
+  document.getElementById('suggestions-especes').classList.remove('ouvert');
+  majEtatBoutonSuivant();
+  construireTableauCortege();
+  afficherEtape(1);
 }
 
 function retirerDuCortege(index){
@@ -1135,10 +1199,12 @@ function majEnteteReleve(){
 function resetReleve(){
   etat.cortege = [];
   etat.especeSelectionnee = null;
+  etat.especeEnCours = null;
   etat.coefCourant = null;
   etat.dernierResultat = null;
   document.getElementById('in-distance').value = '';
   document.getElementById('recherche-espece').value = '';
+  document.getElementById('espece-selectionnee').textContent = "Tapez un nom, choisissez-le dans la liste (ou laissez tel quel si l'espèce n'est pas référencée), puis validez.";
 }
 
 function nouveauPoint(){
