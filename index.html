@@ -89,26 +89,28 @@ input[type=text]:focus,input[type=number]:focus{
   position:sticky;top:0;z-index:20;
   background:var(--ink);
   color:var(--page);
-  padding:.7em 1em;
-  display:flex;align-items:center;gap:.6em;
+  padding:.75em 1.1em;
+  display:flex;align-items:center;gap:.85em;
   border-top:5px solid var(--acc);
 }
 .app-header .titre{
-  font-family:var(--serif);font-weight:700;font-size:1.02rem;flex:1;
+  font-family:var(--serif);font-weight:700;font-size:1.28rem;letter-spacing:.005em;flex:1;
 }
-.app-header .titre small{display:block;font-family:var(--sans);font-weight:400;font-size:.72rem;opacity:.7;}
+.app-header .titre small{display:block;font-family:var(--sans);font-weight:400;font-size:.72rem;opacity:.7;margin-top:.15em;}
 .portail-lien{font-family:var(--mono);font-size:.72rem;color:rgba(244,242,236,.55);text-decoration:none;white-space:nowrap;flex:0 0 auto;}
 .portail-lien:hover{color:var(--page);}
-.icon-btn{
-  background:transparent;
-  color:var(--page);
-  border:1px solid rgba(244,242,236,.35);
-  border-radius:0;
-  width:2.4em;height:2.4em;
+/* Badge-logo : reprend le geste central de l'appli (ligne de transect + quadrats
+   de recouvrement croissant) plutôt qu'un pictogramme générique. Carré plein
+   couleur d'accent, comme le badge de Phytoscope (app pilote du portail) — angle
+   droit, aucun dégradé ni ombre, conforme à la charte. */
+.app-logo{
+  flex:0 0 auto;width:2.7em;height:2.7em;padding:.45em;
+  background:var(--acc);color:var(--page);
+  border:none;border-radius:0;
   display:flex;align-items:center;justify-content:center;
-  font-size:1.1rem;
-  padding:0;
+  cursor:pointer;
 }
+.app-logo svg{width:100%;height:100%;display:block;}
 main{max-width:640px;margin:0 auto;padding:1em;}
 .ecran{display:none;}
 .ecran.actif{display:block;}
@@ -311,7 +313,14 @@ table.historique th,table.historique td{border-bottom:1px solid var(--line);padd
 <body>
 
 <div class="app-header">
-  <button class="icon-btn" id="btn-accueil" title="Accueil">⌂</button>
+  <button class="app-logo" id="btn-accueil" title="Accueil" aria-label="Accueil">
+    <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+      <line x1="4" y1="20" x2="36" y2="20"/>
+      <rect x="6" y="17" width="3" height="6"/>
+      <rect x="16" y="14" width="6" height="12"/>
+      <rect x="27" y="10" width="9" height="18" fill="currentColor" stroke="none"/>
+    </svg>
+  </button>
   <div class="titre" id="titre-ecran">Transect<small>Petite Mer de Gâvres — BTS GPN</small></div>
   <a class="portail-lien" href="https://portail-gpn.kerplouz.workers.dev/">‹ Portail</a>
 </div>
