@@ -375,17 +375,18 @@ table.historique th,table.historique td{border-bottom:1px solid var(--line);padd
           <span class="etape-label">Étape 2/2 — Abondance-dominance</span>
           <div class="espece-en-cours" id="espece-en-cours"></div>
           <a class="lien-retour-etape" onclick="retourEtapeEspece()">← Changer d'espèce</a>
-          <div class="abondance-select" id="abondance-ajout">
-            <!-- contenu généré par JS -->
-          </div>
-          <div class="fourchette-affichage" id="fourchette-affichage"></div>
-          <button id="btn-ajouter-espece" class="btn-add" onclick="ajouterAuCortege()" disabled>+ Ajouter au relevé</button>
 
           <div class="comparateur-detail">
+            <div class="abondance-select" id="abondance-ajout">
+              <!-- contenu généré par JS -->
+            </div>
+            <div class="fourchette-affichage" id="fourchette-affichage"></div>
             <p class="abondance-label" style="margin:.8em 0 .1em;">Repère visuel : à quoi ressemble chaque niveau dans 1 m² ?</p>
             <p>Chaque carré représente un placeau d'1 m² ; la partie verte montre la proportion couverte par l'espèce que vous êtes en train de saisir, pour ce niveau (pas la végétation dans son ensemble).</p>
             <div class="comparateur-scroll" id="comparateur-recouvrement"></div>
           </div>
+
+          <button id="btn-ajouter-espece" class="btn-add" onclick="ajouterAuCortege()" disabled style="margin-top:1em;">+ Ajouter au relevé</button>
         </div>
       </div>
 
