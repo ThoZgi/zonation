@@ -114,6 +114,43 @@ input[type=text]:focus,input[type=number]:focus{
 main{max-width:640px;margin:0 auto;padding:1em;}
 .ecran{display:none;}
 .ecran.actif{display:block;}
+/* ---- Bandeau d'accueil ----
+   Même intention que la page d'accueil de « Végétations du massif armoricain »
+   (mettre en avant le document source du CBNB dont l'appli est la mise en œuvre),
+   mais transposée dans la charte « papier technique froid » : aplat d'encre, angle
+   droit, pas de texture ni d'ombre. Prolonge visuellement le bandeau d'en-tête
+   (marges négatives = pleine largeur de la colonne de contenu). */
+.accueil-hero{
+  background:var(--ink);color:var(--page);
+  margin:-1em -1em 1em;padding:1.6em 1.1em 1.4em;
+}
+.accueil-hero h1{
+  color:var(--page);font-size:1.5rem;line-height:1.25;margin:0 0 .45em;text-wrap:balance;
+}
+.accueil-hero .accroche{
+  font-size:.92rem;line-height:1.55;color:rgba(244,242,236,.82);margin:0 0 1.3em;max-width:46ch;
+}
+.hero-source{
+  border-top:1px solid rgba(244,242,236,.22);padding-top:1em;
+  display:flex;gap:1em;align-items:flex-start;flex-wrap:wrap;
+}
+.hero-source-txt{flex:1 1 240px;min-width:0;}
+.hero-kicker{
+  display:block;font-family:var(--mono);font-size:.62rem;font-weight:700;
+  letter-spacing:.09em;text-transform:uppercase;color:rgba(244,242,236,.5);margin-bottom:.5em;
+}
+.hero-doc{
+  font-family:var(--serif);font-size:.95rem;line-height:1.4;color:var(--page);margin:0 0 .3em;
+}
+.hero-meta{
+  font-size:.76rem;line-height:1.45;color:rgba(244,242,236,.6);margin:0;
+}
+.hero-lien{
+  display:inline-block;margin-top:.7em;
+  font-family:var(--mono);font-size:.72rem;color:var(--page);
+  border:1px solid rgba(244,242,236,.4);padding:.45em .8em;text-decoration:none;
+}
+.hero-lien:hover{background:rgba(244,242,236,.12);}
 .carte{
   background:var(--card);
   border:1px solid var(--line);
@@ -329,9 +366,16 @@ table.historique th,table.historique td{border-bottom:1px solid var(--line);padd
 
   <!-- ECRAN ACCUEIL -->
   <section class="ecran actif" id="ecran-accueil">
-    <div class="carte">
+    <div class="accueil-hero">
       <h1>Visualiser et comprendre la zonation végétale</h1>
-      <p>Le long d'un transect, réalisez un relevé floristique tous les m². L'application compare votre relevé à la typologie des habitats des marais salés de la Petite Mer de Gâvres (COLASSE, 2019, CBN de Brest) et vous propose l'habitat phytosociologique le plus probable.</p>
+      <p class="accroche">Le long d'un transect, réalisez un relevé floristique tous les m². L'application vous propose l'habitat phytosociologique le plus probable.</p>
+      <div class="hero-source">
+        <div class="hero-source-txt">
+          <span class="hero-kicker">Typologie de référence</span>
+          <p class="hero-doc">Typologie des végétations et des habitats des marais salés de la Petite Mer de Gâvres (56)</p>
+          <p class="hero-meta">COLASSE V., avril 2019 — Conservatoire botanique national de Brest.<br>Site Natura 2000 « Massif dunaire de Gâvres-Quiberon et zones humides associées ».</p>
+        </div>
+      </div>
     </div>
     <button class="accueil-bouton principal" onclick="allerA('releve')">
       <span class="emoji">🌿</span>
