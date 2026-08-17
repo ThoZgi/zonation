@@ -446,8 +446,8 @@ table.historique th,table.historique td{border-bottom:1px solid var(--line);padd
       <div id="zone-historique"></div>
       <div style="margin-top:.8em;display:flex;flex-direction:column;gap:.5em;align-items:flex-start;">
         <button class="secondaire" onclick="exporterHistoriqueCSV()">⬇ Exporter tout en CSV</button>
-        <button class="secondaire" onclick="exporterPourPhytoscope()">⬇ Exporter tout pour Phytoscope (JSON)</button>
-        <p style="font-size:.75rem;color:var(--text-2);margin:0;">Le fichier JSON s'importe directement dans Phytoscope (écran Administration → Import de relevés) pour poursuivre l'analyse (gradients, écogrammes…).</p>
+        <button class="secondaire" onclick="exporterPourPhytoscopeCSV()">⬇ Exporter pour Phytoscope (CSV)</button>
+        <p style="font-size:.75rem;color:var(--text-2);margin:0;">Fichier au format du gabarit d'import CSV de Phytoscope (bouton "Importer" sur son écran d'accueil) : chaque relevé est ajouté comme nouveau relevé, sans jamais écraser ceux déjà présents. Les espèces non référencées ne sont pas incluses (Phytoscope ne peut résoudre que des taxons connus).</p>
         <button class="discret" onclick="viderHistorique()">Tout effacer</button>
       </div>
     </div>
@@ -1308,50 +1308,46 @@ function exporterHistoriqueCSV(){
 }
 
 /* ---------- Export compatible Phytoscope ----------
-   Reproduit le schéma JSON attendu par l'import de Phytoscope (apps/phytoscope du
-   portail btsgpn-kerplouz) : { releves:[ {id, name, date, ..., rows:[{name, mode:"bb",
-   cover, ...}]} ] }. Phytoscope résout les taxons d'abord par le nom latin exact
-   (row.name) : les espèces reconnues seront donc directement exploitables (gradients,
-   écogrammes...) une fois le fichier importé ; les espèces non référencées apparaîtront
-   comme "taxon inconnu" mais restent visibles, sans rien casser. */
+   Phytoscope importe des relevés externes via un CSV (bouton "Importer" sur son
+   écran d'accueil, gabarit "Télécharger le gabarit CSV") — chaque relevé du
+   fichier est ajouté comme NOUVEAU relevé, jamais fusionné ni en remplacement de
+   l'existant. C'est le bon chemin pour amener des relevés d'ici dans Phytoscope.
+   (Phytoscope propose aussi un import JSON, mais réservé à ses propres exports :
+   son écran Administration précise qu'il REMPLACE tous les relevés stockés —
+   inadapté et risqué pour un simple ajout de relevés de terrain, donc pas utilisé
+   ici.) Colonnes reprises telles quelles de CSV_LIGNES_HEADERS dans son code ;
+   seules celles réellement lues à l'import sont incluses. Le taxon est résolu par
+   Phytoscope via le nom scientifique exact (nom_scientifique) : les espèces non
+   référencées de l'appli (latin=null) n'ont pas de nom exploitable et sont donc
+   omises de l'export (Phytoscope les rejetterait de toute façon avec un
+   avertissement "taxon non reconnu"). */
 function idPhytoscope(){ return Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4); }
 
-function exporterPourPhytoscope(){
+function exporterPourPhytoscopeCSV(){
   const liste = chargerHistorique();
   if(!liste.length) return;
-  const releves = liste.map(r=>{
-    const horodatage = r.date || new Date().toISOString();
-    const rows = (r.cortege||[]).map(e=>({
-      line_id: idPhytoscope(),
-      tid: null,
-      name: e.latin || e.fr,
-      stratum: "Herbacée",
-      mode: e.mode || "bb",
-      cover: e.cover
-    }));
+  const entetes = ["releve_id","releve_nom","site","code_projet","date","observateur","localisation","coordonnees_gps","surface","taxon_id","nom_scientifique","strate","mode_recouvrement","recouvrement_saisi"];
+  const lignes = [entetes];
+  liste.forEach(r=>{
+    const releveId = idPhytoscope();
     const nomReleve = `${r.transect || 'Transect'} — relevé n°${r.numero || '?'}`;
-    const notesIdentif = r.top ? `Identification proposée par l'appli terrain : ${r.top} (fiche ${r.topFiche}) — ${r.carMatch||''} espèces caractéristiques, indice global ${r.score}%.` : "";
-    return {
-      id: idPhytoscope(),
-      name: nomReleve,
-      date: horodatage.slice(0,10),
-      observer: "",
-      site: "Petite Mer de Gâvres — profil de Linés (Plouhinec)",
-      location: r.distance ? `Distance sur le transect : ${r.distance} m` : "",
-      area: "",
-      notes: [notesIdentif, r.observation].filter(Boolean).join(' — '),
-      codeProjet: r.transect || "TP zonation Gâvres",
-      rows,
-      created_at: horodatage,
-      updated_at: horodatage,
-      device_id: "app-zonation-gavres"
-    };
+    const date = (r.date || new Date().toISOString()).slice(0,10);
+    (r.cortege||[]).forEach(e=>{
+      if(!e.latin) return; // espèce non référencée : pas de nom scientifique résoluble par Phytoscope
+      lignes.push([
+        releveId, nomReleve,
+        "Petite Mer de Gâvres — profil de Linés (Plouhinec)", r.transect || "",
+        date, "",
+        r.distance ? `Distance sur le transect : ${r.distance} m` : "", "", "1 m²",
+        "", e.latin, "Herbacée", e.mode || "bb", e.cover
+      ]);
+    });
   });
-  const payload = { releves, selectedId: releves[0].id, selectedIds: releves.map(r=>r.id) };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json;charset=utf-8;'});
+  const csv = lignes.map(l => l.map(v => `"${(v??"").toString().replace(/"/g,'""')}"`).join(";")).join("\n");
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = 'releves_petite_mer_de_gavres_phytoscope.json';
+  a.href = url; a.download = 'releves_petite_mer_de_gavres_phytoscope.csv';
   a.click();
   URL.revokeObjectURL(url);
 }
