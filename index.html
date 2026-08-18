@@ -291,8 +291,12 @@ table.historique th,table.historique td{border-bottom:1px solid var(--line);padd
   padding:.3em .8em;font-size:.78rem;color:var(--ink);
 }
 .filtre-chip.actif{background:var(--acc);color:#fff;border-color:var(--acc);}
+/* Les 8 coefficients tiennent sur UNE seule ligne pleine largeur, y compris sur
+   téléphone (même parti pris que la version mobile de Phytoscope) : l'échelle
+   complète i → 5 se lit d'un coup d'œil comme une progression, au lieu d'être
+   coupée en deux rangées. */
 .abondance-select{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(46px,1fr));gap:.5em;
+  display:grid;grid-template-columns:repeat(8,1fr);gap:.4em;
   width:100%;margin:.7em 0 0;padding:.5em;
   background:#fff;border:1px solid var(--line);border-radius:0;
 }
@@ -302,6 +306,11 @@ table.historique th,table.historique td{border-bottom:1px solid var(--line);padd
   background:var(--page);color:var(--text-2);font-weight:700;border:1px solid var(--line);
 }
 .abondance-select button.actif{background:var(--acc);color:#fff;border-color:var(--acc);}
+@media (max-width:520px){
+  /* Colonnes plus étroites sur téléphone : on préserve la ligne unique. */
+  .abondance-select{gap:.25em;padding:.4em;}
+  .abondance-select button{min-height:2.9em;font-size:1.1rem;padding:.15em 0;}
+}
 .fourchette-affichage{
   display:flex;flex-direction:column;gap:.15em;min-height:2.2em;
   margin:.5em 0 0;padding:.5em .7em;background:var(--acc-soft);border:1px solid var(--line);border-radius:0;
