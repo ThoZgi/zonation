@@ -425,7 +425,7 @@ table.historique th,table.historique td{border-bottom:1px solid var(--line);padd
       <span class="txt"><b>Nouveau relevé</b><span>Saisir les espèces observées à un point</span></span>
     </button>
     <button class="accueil-bouton secondaire2" onclick="allerA('fiches')">
-      <span class="picto"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><line x1="5" y1="30" x2="35" y2="30"></line><rect x="7" y="24" width="6" height="6"></rect><rect x="17" y="18" width="6" height="12"></rect><rect x="27" y="10" width="6" height="20"></rect></svg></span>
+      <span class="picto"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="9" y="6" width="22" height="28" rx="2"></rect><line x1="14" y1="14" x2="26" y2="14"></line><line x1="14" y1="20" x2="26" y2="20"></line><line x1="14" y1="26" x2="22" y2="26"></line></svg></span>
       <span class="txt"><b>Fiches habitats</b><span>Les 16 groupements trouvables sur le site</span></span>
     </button>
     <button class="accueil-bouton secondaire2" onclick="allerA('historique')">
@@ -1541,19 +1541,22 @@ function exporterPourPhytoscopeCSV(){
   if(!liste.length) return;
   const entetes = ["releve_id","releve_nom","site","code_projet","date","observateur","localisation","coordonnees_gps","surface","taxon_id","nom_scientifique","strate","mode_recouvrement","recouvrement_saisi"];
   const lignes = [entetes];
+  const omises = new Set();   // espèces sans correspondance dans le référentiel de Phytoscope
   liste.forEach(r=>{
     const releveId = idPhytoscope();
     const nomReleve = `Transect ${r.transect || '?'} — relevé n°${r.numero || '?'}`;
     const date = r.dateReleve || (r.date || new Date().toISOString()).slice(0,10);
     const site = [r.site, r.commune].filter(Boolean).join(' — ') || 'Petite Mer de Gâvres';
     (r.cortege||[]).forEach(e=>{
-      if(!e.latin) return; // espèce non référencée : pas de nom scientifique résoluble par Phytoscope
+      if(!e.latin) return;                       // espèce libre : aucun taxon à résoudre
+      const tid = TAXON_PHYTOSCOPE[e.latin];
+      if(tid === undefined){ omises.add(e.latin); return; }  // sans correspondance : Phytoscope la rejetterait
       lignes.push([
         releveId, nomReleve,
         site, `Transect ${r.transect || ''}`,
         date, r.observateur || '',
         r.distance ? `Distance sur le transect : ${r.distance} m` : '', '', '1 m²',
-        '', e.latin, 'Herbacée', e.mode || 'bb', e.cover
+        tid, e.latin, 'Herbacée', e.mode || 'bb', e.cover
       ]);
     });
   });
@@ -1564,6 +1567,11 @@ function exporterPourPhytoscopeCSV(){
   a.href = url; a.download = 'releves_petite_mer_de_gavres_phytoscope.csv';
   a.click();
   URL.revokeObjectURL(url);
+  if(omises.size){
+    const liste = [...omises].map(n => '\u00b7 ' + n).join('\n');
+    alert('Export terminé.\n\n' + omises.size + ' espèce(s) sans correspondance dans le référentiel de Phytoscope ont été omises :\n\n'
+      + liste + '\n\nElles restent dans vos relevés et dans l\'export CSV de synthèse.');
+  }
 }
 
 /* Barre d'action fixe, adaptée à l'étape du bordereau en cours. */
