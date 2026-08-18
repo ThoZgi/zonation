@@ -291,26 +291,7 @@ table.historique th,table.historique td{border-bottom:1px solid var(--line);padd
   padding:.3em .8em;font-size:.78rem;color:var(--ink);
 }
 .filtre-chip.actif{background:var(--acc);color:#fff;border-color:var(--acc);}
-/* Les 8 coefficients tiennent sur UNE seule ligne pleine largeur, y compris sur
-   téléphone (même parti pris que la version mobile de Phytoscope) : l'échelle
-   complète i → 5 se lit d'un coup d'œil comme une progression, au lieu d'être
-   coupée en deux rangées. */
-.abondance-select{
-  display:grid;grid-template-columns:repeat(8,1fr);gap:.4em;
-  width:100%;margin:.7em 0 0;padding:.5em;
-  background:#fff;border:1px solid var(--line);border-radius:0;
-}
-.abondance-label{grid-column:1/-1;font-size:.78rem;color:var(--text-2);font-weight:700;margin-right:.1em;width:100%;}
-.abondance-select button{
-  min-height:3.2em;padding:.2em;font-family:var(--mono);font-size:1.35rem;border-radius:0;
-  background:var(--page);color:var(--text-2);font-weight:700;border:1px solid var(--line);
-}
-.abondance-select button.actif{background:var(--acc);color:#fff;border-color:var(--acc);}
-@media (max-width:520px){
-  /* Colonnes plus étroites sur téléphone : on préserve la ligne unique. */
-  .abondance-select{gap:.25em;padding:.4em;}
-  .abondance-select button{min-height:2.9em;font-size:1.1rem;padding:.15em 0;}
-}
+.abondance-label{display:block;font-size:.78rem;color:var(--text-2);font-weight:700;}
 .fourchette-affichage{
   display:flex;flex-direction:column;gap:.15em;min-height:2.2em;
   margin:.5em 0 0;padding:.5em .7em;background:var(--acc-soft);border:1px solid var(--line);border-radius:0;
@@ -322,30 +303,28 @@ table.historique th,table.historique td{border-bottom:1px solid var(--line);padd
 }
 .fourchette-intervalle{font-family:var(--mono);font-weight:700;color:var(--acc-dark);font-size:1rem;}
 .fourchette-desc{font-weight:400;color:var(--text-2);font-size:.8rem;}
-/* ---- Schéma comparateur de recouvrement (quadrats 1 m²), toujours visible ---- */
+/* ---- Repère visuel : lignes cliquables, 3 dispositions par coefficient ---- */
 .comparateur-detail{margin:.9em 0 0;}
 .comparateur-detail p{font-size:.78rem;color:var(--text-2);margin:.2em 0 .6em;}
-/* Grille responsive plutôt qu'une rangée à défilement horizontal (débordait sur
-   téléphone) : le nombre de colonnes s'adapte tout seul à la largeur disponible
-   (jusqu'à 8 en une rangée sur écran large, moins et sur plusieurs lignes sur
-   téléphone), sans jamais dépasser la largeur de l'écran. */
-.comparateur-scroll{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(60px,1fr));
-  gap:.8em .5em;padding:.3em .1em .6em;
+.comparateur-scroll{display:flex;flex-direction:column;gap:.4em;padding:.2em 0 .4em;}
+.bb-choix{
+  display:grid;grid-template-columns:auto 1fr;grid-template-areas:"entete vignettes" "desc desc";
+  align-items:center;gap:.3em .7em;width:100%;text-align:left;
+  background:var(--card);border:1px solid var(--line);border-radius:0;
+  padding:.5em .6em;cursor:pointer;
 }
-.quadrat{text-align:center;}
-.quadrat-grille{
-  width:60px;height:60px;margin:0 auto;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);
-  border:2px solid var(--ink);border-radius:0;overflow:hidden;background:#fff;
+.bb-choix:hover{border-color:var(--acc);}
+.bb-choix.selectionne{border-color:var(--acc);border-width:2px;background:var(--acc-soft);padding:calc(.5em - 1px) calc(.6em - 1px);}
+.bb-choix-entete{grid-area:entete;display:flex;flex-direction:column;align-items:center;gap:.1em;min-width:3.4em;}
+.bb-choix-code{font-family:var(--mono);font-size:1.35rem;font-weight:700;color:var(--acc-dark);line-height:1;}
+.bb-choix.selectionne .bb-choix-code{color:var(--acc);}
+.bb-choix-plage{font-family:var(--mono);font-size:.62rem;color:var(--text-2);white-space:nowrap;}
+.bb-choix-vignettes{grid-area:vignettes;display:flex;gap:.35em;justify-content:flex-start;}
+.bb-choix-vignettes img{
+  width:auto;height:52px;aspect-ratio:1;display:block;
+  border:1px solid var(--line);background:#fff;
 }
-.quadrat-grille.grand{width:84px;height:84px;}
-.quadrat.selectionne .quadrat-grille{border-color:var(--status-invalide);border-width:3px;}
-.quadrat.selectionne .quadrat-legende b{color:var(--status-invalide);}
-.quadrat-cellule{background:transparent;display:flex;align-items:center;justify-content:center;}
-.quadrat-cellule.pleine{background:var(--status-valide);}
-.quadrat-cellule.croix{color:var(--status-valide);font-weight:700;font-size:7px;line-height:1;}
-.quadrat-legende{font-family:var(--mono);font-size:.66rem;color:var(--text-2);margin-top:.3em;font-weight:700;line-height:1.3;}
-.quadrat-legende b{color:var(--acc-dark);display:block;font-size:.85rem;}
+.bb-choix-desc{grid-area:desc;font-size:.72rem;color:var(--text-2);line-height:1.35;font-weight:400;}
 .score-box{display:flex;flex-direction:column;align-items:flex-end;gap:.25em;flex-shrink:0;}
 .score-principal{font-family:var(--mono);font-size:1.3rem;font-weight:700;color:var(--acc-dark);white-space:nowrap;line-height:1;}
 .score-principal small{display:block;font-family:var(--sans);font-weight:400;font-size:.62rem;color:var(--text-2);margin-top:.15em;}
@@ -487,14 +466,10 @@ table.historique th,table.historique td{border-bottom:1px solid var(--line);padd
           <span class="etape-label">Étape 3/3 — Abondance-dominance</span>
           <div class="espece-en-cours" id="espece-en-cours"></div>
           <a class="lien-retour-etape" onclick="retourEtapeEspece()">← Changer d'espèce</a>
-
           <div class="comparateur-detail">
-            <div class="abondance-select" id="abondance-ajout">
-              <!-- contenu généré par JS -->
-            </div>
             <div class="fourchette-affichage" id="fourchette-affichage"></div>
             <p class="abondance-label" style="margin:.8em 0 .1em;">Repère visuel : à quoi ressemble chaque niveau dans 1 m² ?</p>
-            <p>Chaque carré représente un placeau d'1 m² ; la partie verte montre la proportion couverte par l'espèce que vous êtes en train de saisir, pour ce niveau (pas la végétation dans son ensemble).</p>
+            <p>Chaque carré est un placeau d'1 m² ; le vert montre la surface couverte par l'espèce en cours de saisie. Les trois carrés d'une même ligne ont le <b>même recouvrement</b> mais une répartition différente (en une tache, intermédiaire, éparpillée). <b>Touchez une ligne pour choisir ce coefficient.</b></p>
             <div class="comparateur-scroll" id="comparateur-recouvrement"></div>
           </div>
 
@@ -589,13 +564,6 @@ const COEF_ABONDANCE = {
   '5': {label:'5', desc:'quel que soit le nombre d\'individus', intervalle:'75 – 100 %', pct:87.5, mult:2.0}
 };
 const CODES_ABONDANCE = ['i','r','+','1','2','3','4','5'];
-/* i, r, + se distinguent d'abord par le NOMBRE d'individus (abondance), pas par la
-   surface couverte (dominance) : le comparateur les représente donc par des croix
-   (une croix = un individu) plutôt que par un remplissage de cellules, pour que les
-   élèves voient clairement la nuance entre "un seul pied" (i), "quelques pieds" (r)
-   et "plusieurs pieds mais peu de recouvrement" (+). À partir de 1, la dominance
-   (proportion de la surface couverte) prend le relais et redevient un remplissage. */
-const CROIX_ABONDANCE = {'i':1, 'r':3, '+':7};
 const ABONDANCE_DEFAUT = '+';
 
 /* Équivalent en % de recouvrement, quel que soit le mode de saisie (comme la fonction
@@ -668,7 +636,6 @@ document.getElementById('btn-accueil').onclick = ()=>allerA('accueil');
 function initSaisieEspeces(){
   // Aucun coefficient présélectionné : l'élève doit en choisir un consciemment
   // avant de pouvoir ajouter l'espèce (cf. majEtatBoutonAjouter).
-  construireSelecteurAbondance();
   construireComparateurRecouvrement();
   afficherFourchette();
   majEtatBoutonAjouter();
@@ -722,63 +689,45 @@ function passerEtapeAbondance(){
 
 function retourEtapeEspece(){
   etat.coefCourant = null;
-  construireSelecteurAbondance();
   construireComparateurRecouvrement();
   afficherFourchette();
   majEtatBoutonAjouter();
   afficherEtape(1);
 }
 
-/* ---- Schéma comparateur : quadrats 1 m² à remplissage proportionnel ----
-   Un même ordre de remplissage (mélange déterministe, seed fixe) est réutilisé pour
-   tous les quadrats : les cellules d'un petit pourcentage sont un sous-ensemble de
-   celles d'un pourcentage plus grand, ce qui donne un aspect de recouvrement naturel
-   et cohérent d'un quadrat à l'autre plutôt qu'un simple bloc plein en haut à gauche. */
-const ORDRE_QUADRAT = (function(){
-  const arr = Array.from({length:100}, (_,i)=>i);
-  let graine = 42;
-  function alea(){ graine = (graine*9301+49297) % 233280; return graine/233280; }
-  for(let i=arr.length-1;i>0;i--){ const j = Math.floor(alea()*(i+1)); [arr[i],arr[j]] = [arr[j],arr[i]]; }
-  return arr;
-})();
-
-function construireGrilleQuadrat(code){
-  const nCroix = CROIX_ABONDANCE[code];
-  if(nCroix){
-    // i / r / + : le nombre d'INDIVIDUS prime, pas la surface — une croix = un individu.
-    const croix = new Set(ORDRE_QUADRAT.slice(0, nCroix));
-    let html = '';
-    for(let i=0;i<100;i++) html += `<div class="quadrat-cellule ${croix.has(i)?'croix':''}">${croix.has(i)?'✕':''}</div>`;
-    return html;
-  }
-  // 1 à 5 : la surface couverte (dominance) prime — remplissage proportionnel des cellules.
-  const pct = COEF_ABONDANCE[code].pct;
-  const nPleines = pct>0 ? Math.max(1, Math.round(pct)) : 0;
-  const pleines = new Set(ORDRE_QUADRAT.slice(0, nPleines));
-  let html = '';
-  for(let i=0;i<100;i++) html += `<div class="quadrat-cellule ${pleines.has(i)?'pleine':''}"></div>`;
-  return html;
+/* ---- Repère visuel : vignettes réelles de placeaux 1 m² ----
+   Vignettes reprises de Phytoscope (apps/phytoscope/documents/bb-taches/) plutôt
+   que des grilles générées : pour un même recouvrement, elles montrent 3
+   dispositions possibles (agrégée / intermédiaire / éclatée). C'est justement la
+   nuance difficile à saisir sur le terrain — « 15 %, ça peut être une grosse tache
+   comme des dizaines de petites ». Chaque ligne est cliquable et vaut sélection du
+   coefficient : l'élève peut choisir par l'image plutôt que par le code. */
+const BB_DOSSIER_TACHES = 'documents/bb-taches/';
+const BB_DISPOSITIONS = [
+  {cle:'agregee',  libelle:'Agrégée'},
+  {cle:'mixte',    libelle:'Intermédiaire'},
+  {cle:'eclatee',  libelle:'Éclatée'}
+];
+/* % nominal de chaque vignette (nom de fichier), repris tel quel du jeu d'images. */
+const BB_PCT_VIGNETTE = {i:'0p05', r:'0p1', '+':'0p5', '1':'2p5', '2':'15', '3':'37p5', '4':'62p5', '5':'87p5'};
+function srcVignette(code, disposition){
+  return `${BB_DOSSIER_TACHES}BB_${code}_${disposition}_${BB_PCT_VIGNETTE[code]}pct.png`;
 }
 
-/* La ligne de quadrats de référence reste affichée en permanence sous les boutons de
-   coefficients ("il faut du visuel") ; le quadrat du coefficient actuellement sélectionné
-   est mis en évidence (classe "selectionne"), pour relier directement le clic à son repère
-   visuel sans avoir besoin d'un quadrat interactif séparé. */
 function construireComparateurRecouvrement(){
   const cont = document.getElementById('comparateur-recouvrement');
   if(!cont) return;
   cont.innerHTML = CODES_ABONDANCE.map(c=>{
-    return `<div class="quadrat ${etat.coefCourant===c?'selectionne':''}" data-c="${c}">
-      <div class="quadrat-grille">${construireGrilleQuadrat(c)}</div>
-      <div class="quadrat-legende"><b>${c}</b>${COEF_ABONDANCE[c].intervalle}</div>
-    </div>`;
+    const info = COEF_ABONDANCE[c];
+    const vignettes = BB_DISPOSITIONS.map(d=>
+      `<img src="${srcVignette(c, d.cle)}" alt="Recouvrement ${info.intervalle}, répartition ${d.libelle.toLowerCase()}" title="${d.libelle}" loading="lazy" width="120" height="120">`
+    ).join('');
+    return `<button type="button" class="bb-choix ${etat.coefCourant===c?'selectionne':''}" data-c="${c}" onclick="choisirCoefficient('${c}')">
+      <span class="bb-choix-entete"><span class="bb-choix-code">${c}</span><span class="bb-choix-plage">${info.intervalle}</span></span>
+      <span class="bb-choix-vignettes">${vignettes}</span>
+      <span class="bb-choix-desc">${info.desc}</span>
+    </button>`;
   }).join('');
-}
-
-function construireSelecteurAbondance(){
-  const cont = document.getElementById('abondance-ajout');
-  cont.innerHTML = `<span class="abondance-label">Coefficient d'abondance-dominance :</span>` +
-    CODES_ABONDANCE.map(c=>`<button type="button" data-c="${c}" class="${etat.coefCourant===c?'actif':''}" onclick="choisirCoefficient('${c}')" title="${COEF_ABONDANCE[c].desc}">${c}</button>`).join('');
 }
 
 function afficherFourchette(){
@@ -802,8 +751,7 @@ function majEtatBoutonAjouter(){
 
 function choisirCoefficient(code){
   etat.coefCourant = code;
-  document.querySelectorAll('#abondance-ajout button').forEach(b=> b.classList.toggle('actif', b.dataset.c===code));
-  document.querySelectorAll('#comparateur-recouvrement .quadrat').forEach(q=> q.classList.toggle('selectionne', q.dataset.c===code));
+  document.querySelectorAll('#comparateur-recouvrement .bb-choix').forEach(q=> q.classList.toggle('selectionne', q.dataset.c===code));
   afficherFourchette();
   majEtatBoutonAjouter();
 }
@@ -893,7 +841,6 @@ function ajouterAuCortege(){
   etat.especeSelectionnee = null;
   etat.especeEnCours = null;
   etat.coefCourant = null;
-  construireSelecteurAbondance();
   construireComparateurRecouvrement();
   afficherFourchette();
   majEtatBoutonAjouter();
