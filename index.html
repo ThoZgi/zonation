@@ -236,6 +236,7 @@ table.cortege button.retirer{background:transparent;border:none;color:var(--stat
   display:flex;gap:.6em;z-index:20;
 }
 .barre-actions button{flex:1;}
+.barre-actions button:disabled{background:var(--line);border-color:var(--line);color:var(--text-2);cursor:not-allowed;}
 .compteur-badge{
   background:var(--status-invalide);color:#fff;border-radius:0;
   font-family:var(--mono);font-size:.7rem;padding:.1em .5em;margin-left:.4em;
@@ -895,6 +896,7 @@ function retirerDuCortege(index){
 }
 
 function construireTableauCortege(){
+  if(typeof majBarreActions === "function") majBarreActions(); // le bouton « Analyser » dépend du cortège
   document.getElementById('nb-cortege').textContent = etat.cortege.length;
   const cont = document.getElementById('tableau-cortege');
   if(!etat.cortege.length){
@@ -1537,17 +1539,38 @@ document.addEventListener('DOMContentLoaded', ()=>{
   majBarreActions();
 });
 
+/* Le bouton « Analyser » reste inactif tant que le cortège est vide : on ne peut
+   pas sauter l'ajout au relevé sans s'en rendre compte (cas le plus piégeux : le
+   quadrat monospécifique, où oublier « Ajouter » vide le relevé entier). */
+function actionsEcranReleve(){
+  const vide = etat.cortege.length === 0;
+  return `<button class="secondaire" onclick="allerA('identite')">← Identité</button>`
+    + `<button onclick="analyserDepuisBarre()"${vide?' disabled title="Ajoutez au moins une espèce au relevé"':''}>Analyser le relevé</button>`;
+}
+
 const ACTIONS_PAR_ECRAN = {
-  'ecran-identite': `<button class="secondaire" onclick="allerA('accueil')">Annuler</button><button onclick="validerIdentite()">Suivant : espèces →</button>`,
-  'ecran-releve': `<button class="secondaire" onclick="allerA('identite')">← Identité</button><button onclick="afficherResultats()">Analyser le relevé</button>`
+  'ecran-identite': ()=> `<button class="secondaire" onclick="allerA('accueil')">Annuler</button><button onclick="validerIdentite()">Suivant : espèces →</button>`,
+  'ecran-releve': actionsEcranReleve
 };
+
+/* Filet de sécurité : une espèce choisie et cotée mais pas encore ajoutée serait
+   perdue silencieusement. On la signale plutôt que de l'ignorer. */
+function analyserDepuisBarre(){
+  const e = etat.especeEnCours;
+  if(e && etat.coefCourant){
+    const ok = confirm(`« ${e.fr} » (coefficient ${etat.coefCourant}) n'a pas encore été ajoutée au relevé.\n\nOK : l'ajouter puis analyser.\nAnnuler : revenir à la saisie.`);
+    if(!ok) return;
+    ajouterAuCortege();
+  }
+  afficherResultats();
+}
 
 function majBarreActions(){
   const barre = document.getElementById('barre-releve');
   if(!barre) return;
   const actif = document.querySelector('.ecran.actif');
   const actions = actif ? ACTIONS_PAR_ECRAN[actif.id] : null;
-  barre.innerHTML = actions || '';
+  barre.innerHTML = actions ? actions() : '';
   barre.style.display = actions ? 'flex' : 'none';
 }
 const _allerA = allerA;
