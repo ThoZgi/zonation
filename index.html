@@ -124,17 +124,18 @@ main{max-width:640px;margin:0 auto;padding:1em;}
   background:var(--ink);color:var(--page);
   margin:-1em -1em 1em;padding:1.6em 1.1em 1.4em;
 }
-.accueil-hero h1{
-  color:var(--page);font-size:1.5rem;line-height:1.25;margin:0 0 .45em;text-wrap:balance;
-}
-.accueil-hero .accroche{
-  font-size:.92rem;line-height:1.55;color:rgba(244,242,236,.82);margin:0 0 1.3em;max-width:46ch;
-}
 .hero-source{
-  border-top:1px solid rgba(244,242,236,.22);padding-top:1em;
   display:flex;gap:1em;align-items:flex-start;flex-wrap:wrap;
 }
-.hero-source-txt{flex:1 1 240px;min-width:0;}
+.hero-source-txt{flex:1 1 150px;min-width:0;}
+/* Vignette de couverture du rapport : donne un visage au document source, comme
+   la couverture du cahier technique sur l'accueil de « Végétations armoricaines ».
+   Ni ombre ni rotation (charte) — un simple filet clair suffit à la détacher. */
+.hero-couv{flex:0 0 auto;display:block;line-height:0;}
+.hero-couv img{
+  display:block;width:clamp(76px,22vw,96px);height:auto;
+  border:1px solid rgba(244,242,236,.35);
+}
 .hero-kicker{
   display:block;font-family:var(--mono);font-size:.62rem;font-weight:700;
   letter-spacing:.09em;text-transform:uppercase;color:rgba(244,242,236,.5);margin-bottom:.5em;
@@ -367,9 +368,8 @@ table.historique th,table.historique td{border-bottom:1px solid var(--line);padd
   <!-- ECRAN ACCUEIL -->
   <section class="ecran actif" id="ecran-accueil">
     <div class="accueil-hero">
-      <h1>Visualiser et comprendre la zonation végétale</h1>
-      <p class="accroche">Le long d'un transect, réalisez un relevé floristique tous les m². L'application vous propose l'habitat phytosociologique le plus probable.</p>
       <div class="hero-source">
+        <span class="hero-couv"><img src="documents/couverture.jpg" width="340" height="481" alt="Couverture du rapport COLASSE 2019, CBN de Brest" loading="lazy"></span>
         <div class="hero-source-txt">
           <span class="hero-kicker">Typologie de référence</span>
           <p class="hero-doc">Typologie des végétations et des habitats des marais salés de la Petite Mer de Gâvres (56)</p>
